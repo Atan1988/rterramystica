@@ -3,6 +3,7 @@
 export("%>%")
 export(create_map_table)
 export(line_equal)
+export(map_coord_setup)
 export(parse_map_str)
 export(tile_coord_setup)
 importFrom(magrittr,"%>%")

@@ -26,6 +26,20 @@ tile_coord_setup  <- function(row, col) {
   )
 }
 
+#' @title map tiles coordinates setup
+#' @name map_coord_setup
+#' @param map_df map basic data frame
+#' @export
+map_coord_setup  <- function(map_df) {
+   map_df %>% dplyr::select(row, col, color_code) %>%
+    purrrlyr::by_row(
+      ~tile_coord_setup(.$row, .$col)
+    ) %>% tidyr::unnest() %>%
+    dplyr::mutate(
+      bridge = ifelse(color_code != 99, NA, 0)
+    )
+}
+
 #' @title check line equivalence
 #' @name line_equal
 #' @param line1 line one
@@ -52,7 +66,22 @@ parse_map_str <- function(map_str) {
 #' @export
 create_map_table <- function(map_str) {
   parsed_map_str <- map_str %>% parse_map_str()
+  data(color_map)
 
-  1:length(parsed_map_str) %>%
-    purrr::map()
+  df <- 1:length(parsed_map_str) %>%
+    purrr::map_df(function(x) {
+      tibble::tibble(
+        row = 1,
+        col = 1:length(parsed_map_str[[x]]),
+        color_letter = parsed_map_str[[x]]
+      )
+    }) %>%
+    dplyr::left_join(
+      color_map
+    ) %>%
+    dplyr::mutate(
+      building = 0
+    )
+
+  return(df)
 }
