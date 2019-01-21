@@ -3,26 +3,35 @@
 #' @param row tile row position
 #' @param col tile column position
 #' @export
-tile_coord_setup  <- function(row, col) {
-  top <- tibble::tibble(x = col - 0.5, y = row - 1)
-  left2 <- tibble::tibble(x = col - 1, y = row - 0.75)
-  right2 <- tibble::tibble(x = col, y = row - 0.75)
-  left3 <- tibble::tibble(x = col - 1, y = row - 0.25)
-  right3 <- tibble::tibble(x = col, y = row - 0.25)
-  bot <- tibble::tibble(x = col - 0.5, y = row)
+tile_coord_setup  <- function(row, col, row_unit = sqrt(3) / 2 * 100, col_unit = 1 *100) {
+  top <- tibble::tibble(x = (col - 0.5) * row_unit, y = (row - 1) * col_unit )
+  left2 <- tibble::tibble(x = (col - 1) * row_unit, y = (row - 0.75) * col_unit )
+  right2 <- tibble::tibble(x = col * row_unit, y = (row - 0.75) * col_unit )
+  left3 <- tibble::tibble(x = (col - 1) * row_unit, y = (row - 0.25) * col_unit )
+  right3 <- tibble::tibble(x = col * row_unit, y = (row - 0.25) * col_unit )
+  bot <- tibble::tibble(x = (col - 0.5) * row_unit, y = row * col_unit)
 
   coord_df <- dplyr::bind_rows(
     top, left2, right2, left3, right3, bot
   ) %>% dplyr::mutate(pts = c('top', 'left2', 'right2', 'left3', 'right3', 'bot'))
 
-  if (row %%2 == 0) coord_df <- coord_df %>% dplyr::mutate(x = x + 0.5)
+  if (row %%2 == 0) coord_df <- coord_df %>% dplyr::mutate(x = x + 0.5 * row_unit)
+  if (row > 1) coord_df <- coord_df %>% dplyr::mutate(y = y - 0.25 * (row - 1) * col_unit)
+  coord_df <- coord_df %>% dplyr::mutate(y = y * -1)
+
+  top <- coord_df[1, ]
+  left2 <- coord_df[2, ]
+  right2 <- coord_df[3, ]
+  left3 <- coord_df[4, ]
+  right3 <- coord_df[5, ]
+  bot <- coord_df[6, ]
 
   tibble::tibble(
     lines = seq(1, 6, 1),
-    x1 = c(top$x, left2$x, right2$x, left3$x, right3$x, bot$x),
-    y1 = c(top$y, left2$y, right2$y, left3$y, right3$y, bot$y),
-    x2 = c(left2$x, right2$x, left3$x, right3$x, bot$x, top$x),
-    y2 = c(left2$y, right2$y, left3$y, right3$y, bot$y, top$y),
+    x1 = c(top$x, right2$x, right3$x, bot$x, left3$x, left2$x),
+    y1 = c(top$y, right2$y, right3$y, bot$y, left3$y, left2$y),
+    x2 = c(right2$x, right3$x, bot$x, left3$x, left2$x, top$x),
+    y2 = c(right2$y, right3$y, bot$y, left3$y, left2$y, top$y),
   )
 }
 
@@ -30,7 +39,7 @@ tile_coord_setup  <- function(row, col) {
 #' @name map_coord_setup
 #' @param map_df map basic data frame
 #' @export
-map_coord_setup  <- function(map_df) {
+map_coord_setup  <- function(map_df, ...) {
    map_df %>% dplyr::select(row, col, color_code) %>%
     purrrlyr::by_row(
       ~tile_coord_setup(.$row, .$col)
@@ -71,7 +80,7 @@ create_map_table <- function(map_str) {
   df <- 1:length(parsed_map_str) %>%
     purrr::map_df(function(x) {
       tibble::tibble(
-        row = 1,
+        row = x,
         col = 1:length(parsed_map_str[[x]]),
         color_letter = parsed_map_str[[x]]
       )

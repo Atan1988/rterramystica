@@ -13,4 +13,7 @@ Roxygen: list(markdown = TRUE)
 RoxygenNote: 6.1.0
 Imports: 
     magrittr,
-    purrr
+    purrr,
+    tilegramsR,
+    leaflet,
+    leaflet.extras
