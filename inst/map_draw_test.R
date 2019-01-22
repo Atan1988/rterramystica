@@ -45,6 +45,30 @@ sf_TM_line <- map_df_lines
 sf_TM_line$g_line <- g_line %>% st_sfc()
 sf_TM_line <- sf_TM_line %>% st_as_sf()
 
+sf_TM_line <- sf_TM_line %>%
+  dplyr::mutate(
+    color = dplyr::case_when(
+      bridge == 0 ~ "#8B4500",
+      bridge == 1 ~ 'blue',
+      bridge == 2 ~ 'green',
+      bridge == 3 ~ 'gray',
+      bridge == 4 ~ 'red',
+      bridge == 5 ~ 'yellow',
+      bridge == 6 ~ 'brown',
+      bridge == 7 ~ 'black',
+      TRUE ~ 'black'
+    ),
+    wgt = dplyr::case_when(
+      !is.na(bridge) & bridge > 0 ~ 3,
+      bridge == 0 ~ 1,
+      TRUE ~ 2
+    ),
+    dash_a = dplyr::case_when(
+      bridge == 0 ~ 2,
+      TRUE ~ 1
+    )
+  )
+
 pal_fill <- colorFactor(
   palette = c('blue', 'green', 'gray', 'red', 'yellow', 'brown', 'black', 'white'),
   domain = map_df_grp$color_code %>% as.factor() %>% levels()
@@ -74,12 +98,12 @@ getLeafletOptions <- function(minZoom, maxZoom, ...) {
 leaflet(
   #sf_NPR1to1,
   sf_TM,
-  options= getLeafletOptions(-0.25, -0.25)) %>%
+  options= getLeafletOptions(-0.2, -0.2)) %>%
   addPolygons(
     weight=2, color='white',
     fillOpacity = 0.6, opacity = 1, fillColor= ~pal_fill(color_code),
     highlightOptions = highlightOptions(weight = 4))%>%
-  addPolylines(weight = 2, color = 'black', data = sf_TM_line, dashArray = 2) %>%
+  addPolylines(weight = ~wgt, color = ~color, data = sf_TM_line, dashArray = ~dash_a) %>%
   setMapWidgetStyle()
 
 # %>%

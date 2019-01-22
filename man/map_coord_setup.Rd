@@ -4,7 +4,7 @@
 \alias{map_coord_setup}
 \title{map tiles coordinates setup}
 \usage{
-map_coord_setup(map_df)
+map_coord_setup(map_df, ...)
 }
 \arguments{
 \item{map_df}{map basic data frame}

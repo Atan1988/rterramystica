@@ -16,4 +16,5 @@ Imports:
     purrr,
     tilegramsR,
     leaflet,
-    leaflet.extras
+    leaflet.extras,
+    fuzzyjoin

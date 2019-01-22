@@ -40,13 +40,49 @@ tile_coord_setup  <- function(row, col, row_unit = sqrt(3) / 2 * 100, col_unit =
 #' @param map_df map basic data frame
 #' @export
 map_coord_setup  <- function(map_df, ...) {
-   map_df %>% dplyr::select(row, col, color_code) %>%
+   tmp_df <- map_df %>% dplyr::select(row, col, color_code) %>%
     purrrlyr::by_row(
       ~tile_coord_setup(.$row, .$col)
     ) %>% tidyr::unnest() %>%
-    dplyr::mutate(
-      bridge = ifelse(color_code != 99, NA, 0)
-    )
+     dplyr::mutate_at(
+       dplyr::vars(x1, x2, y1, y2), ~round(., 5)
+     )
+
+   tmp_df %>% dplyr::mutate(
+     bridge = chk_bridge(tmp_df)
+   )
+}
+
+#' @title check for potential bridge connection
+#' @name chk_bridge
+#' @param line1 line one
+#' @param line2 line two
+#' @export
+chk_bridge  <- function(map_df) {
+   1:nrow(map_df) %>% purrr::map_dbl(
+     function(x) {
+       line_loc <- dplyr::bind_rows(
+         map_df[x, ] %>% dplyr::select(x1, y1, x2, y2),
+         map_df[x, ] %>% dplyr::select(x1 := x2, y1 := y2, x2 := x1, y2 := y1)
+       ) %>% dplyr::inner_join(
+         map_df %>% dplyr::select(x1, y1, x2, y2, color_code),
+         by = c('x1', 'x2', 'y1', 'y2')
+       ) %>% dplyr::pull(color_code)
+
+       pt_loc1 <- map_df[x, ] %>% dplyr::select(x1, y1) %>% dplyr::inner_join(
+         map_df %>% dplyr::select(x1, y1, color_code),
+         by = c('x1', 'y1')
+       ) %>% dplyr::pull(color_code)
+
+       pt_loc2 <- map_df[x, ] %>% dplyr::select(x1 := x2, y1 := y2) %>% dplyr::inner_join(
+         map_df %>% dplyr::select(x1, y1, color_code),
+         by = c('x1', 'y1')
+       ) %>% dplyr::pull(color_code)
+
+       if (sum(magrittr::equals(line_loc, c(99, 99))) == 2 &
+           sum(pt_loc1 != 99) >= 1 & sum(pt_loc2 != 99) >= 1
+       ) return(0) else return(NA)
+     })
 }
 
 #' @title check line equivalence

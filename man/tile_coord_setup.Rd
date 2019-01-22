@@ -4,7 +4,8 @@
 \alias{tile_coord_setup}
 \title{tile coordinates setup}
 \usage{
-tile_coord_setup(row, col)
+tile_coord_setup(row, col, row_unit = sqrt(3)/2 * 100, col_unit = 1 *
+  100)
 }
 \arguments{
 \item{row}{tile row position}
