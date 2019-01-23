@@ -16,84 +16,13 @@ K,I,I,G,B,S,B,I,G,Y,K,U,Y;"
 
 map_df <- create_map_table(map_str) %>% map_coord_setup()
 
-map_df  %>%
-  dplyr::left_join(color_map %>% dplyr::select(color_letter, color_code)) %>%
-  dplyr::group_by(row, col, color_code)%>%
-  tidyr::nest() -> map_df_grp
-
-map_df_lines <- map_df %>%
-  dplyr::select(x1, y1, x2, y2, bridge) %>% dplyr::distinct()
-
-1:nrow(map_df_lines) %>%
-  purrr::map(function(x) {
-      map_df_lines[x, 1:4] %>% t() %>% as.vector() -> tmp
-      matrix(tmp[c(1, 3, 2, 4)], 2) %>% st_linestring()
-  }) -> g_line
-
-map_df_grp$data %>%  purrr::map(function(x) {
-  tmp_d <- x %>% dplyr::select(x := x1, y := y1)
-  list(dplyr::bind_rows(tmp_d, tmp_d[1, ]) %>% as.matrix()) %>% st_polygon()
-})   -> g #%>% st_sfc()
-
-sf_TM <- map_df_grp %>% dplyr::select(
-               row, col, color_code)
-
-sf_TM$g <-  g %>% st_sfc()
-sf_TM <- sf_TM %>% st_as_sf()
-
-sf_TM_line <- map_df_lines
-sf_TM_line$g_line <- g_line %>% st_sfc()
-sf_TM_line <- sf_TM_line %>% st_as_sf()
-
-sf_TM_line <- sf_TM_line %>%
-  dplyr::mutate(
-    color = dplyr::case_when(
-      bridge == 0 ~ "#8B4500",
-      bridge == 1 ~ 'blue',
-      bridge == 2 ~ 'green',
-      bridge == 3 ~ 'gray',
-      bridge == 4 ~ 'red',
-      bridge == 5 ~ 'yellow',
-      bridge == 6 ~ 'brown',
-      bridge == 7 ~ 'black',
-      TRUE ~ 'black'
-    ),
-    wgt = dplyr::case_when(
-      !is.na(bridge) & bridge > 0 ~ 3,
-      bridge == 0 ~ 1,
-      TRUE ~ 2
-    ),
-    dash_a = dplyr::case_when(
-      bridge == 0 ~ 2,
-      TRUE ~ 1
-    )
-  )
+sf_TM <- set_sf_map_tile(map_df)
+sf_TM_line <- set_sf_map_line(map_df)
 
 pal_fill <- colorFactor(
   palette = c('blue', 'green', 'gray', 'red', 'yellow', 'brown', 'black', 'white'),
-  domain = map_df_grp$color_code %>% as.factor() %>% levels()
+  domain = c(seq(1, 7, 1), 99) %>% as.character()
 )
-
-
-library(colormap)
-
-# tilegrams are not geo-rerefenced so we need to use
-# L.CRS.Simple projecion.
-getLeafletOptions <- function(minZoom, maxZoom, ...) {
-  leafletOptions(
-    crs = leafletCRS("L.CRS.Simple"),
-    minZoom = minZoom, maxZoom = maxZoom,
-    dragging = FALSE, zoomControl = FALSE,
-    tap = FALSE,
-    attributionControl = FALSE , ...)
-}
-#
-# # helper function to get colors based on a factor variable
-# getFactorPal <- function(f) {
-#   colorFactor(colormap::colormap(
-#     colormap = colormap::colormaps$hsv,
-#     nshades = length(f)), f)
-# }
 
 leaflet(
   #sf_NPR1to1,
@@ -113,24 +42,3 @@ leaflet(
 #     labelOptions = labelOptions(
 #       noHide = 'T', textOnly = T,
 #       offset=c(-4,-10), textsize = '12px'))
-
-library('leaflet')
-
-# Fake data
-df <- data.frame(lng = c(-5, -10, -15, -20, 25),
-                 lat = c(8, 12, 33, 4, 18),
-                 size = c(200000, 100000, 800000, 250000, 350000),
-                 popup = c('A', 'B', 'C', 'D', 'E'),
-                 type = c('A', 'B', 'C', 'D', 'E'),
-                 stringsAsFactors = FALSE)
-
-# If you want to set your own colors manually:
-pal <- colorFactor(
-  palette = c('red', 'blue', 'green', 'purple', 'orange'),
-  domain = df$type
-)
-
-leaflet(df) %>%
-  addTiles() %>%
-  addCircles(lng = ~lng, lat = ~lat, weight = 1,
-             radius = ~size, popup = ~popup, color = ~pal_fill(type))
