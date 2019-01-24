@@ -6,6 +6,7 @@ color_map <- tibble::tibble(
 
 ##list bonus tiles
 scoring_tile <- tibble::tibble(
+  scoring_tile_id = seq(1, 8, 1),
   trading_house = c(1, 1, rep(0, 6)),
   stronghold = c(0, 0, 1, 1, rep(0, 4)),
   sancuary = c(0, 0, 1, 1, rep(0, 4)),
@@ -20,6 +21,31 @@ scoring_tile <- tibble::tibble(
 )
 
 ##
-bouns_card <- tibble::tibble(
+bounus_card <- tibble::tibble(
+  bounus_card_id = seq(1, 9, 1),
+  priest = c(1, rep(0, 8)),
+  worker = c(0, 1, rep(0, 5), 1, 2),
+  coin = c(rep(0, 2), 6, 0, 2, 4, 2, 0, 0),
+  power = c(0, 3, 0, 3, rep(0, 5)),
+  dig = c(rep(0, 4), 1, rep(0, 4)),
+  ship = c(rep(0, 3), 1, rep(0, 5)),
+  cult = c(rep(0, 5), 1, rep(0, 3)),
+  dwelling_bonus = c(rep(0, 6), 1, rep(0, 2)),
+  trading_house_bonus = c(rep(0, 7), 2, 0),
+  stronghold_bonus = c(rep(0, 8), 4),
+  sancuary_bonus = c(rep(0, 8), 4)
+)
 
+###facor_tile
+favor_tiles <- tibble::tibble(
+  cult_unit = c(1, 2, 3, 1, 2, 3, 1, 2, 3, 1, 2, 3),
+  cult_color = c(rep('red', 3), rep('blue', 3), rep('brown', 3), rep('white', 3)),
+  coin = c(3, rep(0, 11)),
+  town6 = c(0, 1, rep(0, 10)),
+  trading_house_bonus = c(rep(0, 3), 3, rep(0, 8)),
+  cult = c(rep(0, 4), 1, rep(0, 7)),
+  dwelling_bonus = c(rep(0, 6), 2, rep(0, 5)),
+  power = c(rep(0, 7), 1, rep(0, 2), 4, 0),
+  worker = c(rep(0, 7), 1, rep(0, 4)),
+  trading_house_turn_bonus = c(rep(0, 9), 1, rep(0, 2))
 )
