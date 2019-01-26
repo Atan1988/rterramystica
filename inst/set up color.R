@@ -60,5 +60,21 @@ power_actions <-tibble::tibble(
    priest = c(0, 1, rep(0, 4)),
    worker = c(rep(0, 2), 2, rep(0, 3)),
    coin = c(rep(0, 3), 7, rep(0, 2)),
-   dig = c(rep(0, 4), 1, 2)
+   dig = c(rep(0, 4), 1, 2),
+   number = 1
 )
+
+###town tiles
+town_tiles <- tibble::tibble(
+  town_tiles_id = seq(1, 8, 1),
+  points = c(seq(9, 5, -1), 2, 4, 11),
+  priest = c(1, rep(0, 7)),
+  cult = c(0, 1, rep(0, 3), 2, rep(0, 2)),
+  worker = c(rep(0, 2), 2, rep(0, 5)),
+  power = c(rep(0, 3), 8, rep(0, 4)),
+  coin = c(rep(0, 4), 6, rep(0, 3)),
+  ship = c(rep(0, 6), 1, 0),
+  carpet_flight = c(rep(0, 6), 1, 0),
+  number = c(rep(2, 5), 1, 2, 1)
+)
+
