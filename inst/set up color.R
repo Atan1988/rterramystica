@@ -38,6 +38,7 @@ bounus_card <- tibble::tibble(
 
 ###facor_tile
 favor_tiles <- tibble::tibble(
+  favor_tiles_id = seq(1, 12, 1),
   cult_unit = c(1, 2, 3, 1, 2, 3, 1, 2, 3, 1, 2, 3),
   cult_color = c(rep('red', 3), rep('blue', 3), rep('brown', 3), rep('white', 3)),
   coin = c(3, rep(0, 11)),
@@ -47,5 +48,17 @@ favor_tiles <- tibble::tibble(
   dwelling_bonus = c(rep(0, 6), 2, rep(0, 5)),
   power = c(rep(0, 7), 1, rep(0, 2), 4, 0),
   worker = c(rep(0, 7), 1, rep(0, 4)),
-  trading_house_turn_bonus = c(rep(0, 9), 1, rep(0, 2))
+  trading_house_turn_bonus = c(rep(0, 9), 1, rep(0, 2)),
+  number = 3
+)
+
+###
+power_actions <-tibble::tibble(
+   power_actions_id = seq(1, 6, 1),
+   power_unit = c(rep(3, 2), rep(4, 3), 6),
+   bridge = c(1, rep(0, 5)),
+   priest = c(0, 1, rep(0, 4)),
+   worker = c(rep(0, 2), 2, rep(0, 3)),
+   coin = c(rep(0, 3), 7, rep(0, 2)),
+   dig = c(rep(0, 4), 1, 2)
 )
